@@ -14,9 +14,7 @@ io.on("connection", socket => {
   console.log('user connected');
   console.log(`num of users: ${numUsers}`);
   let message;
-  if (numUsers < 2) {
-    message = "Waiting for more players...";
-  } else {
+  if (numUsers > 1) {
     message = "Ready to play!";
     io.sockets.emit("user ready", message);
   }
