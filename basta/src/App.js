@@ -1,5 +1,11 @@
 import React, { Component } from "react";
 import socketIOClient from "socket.io-client";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+
+import MainMenu from "./MainMenu";
+import GameRoom from "./GameRoom";
 
 class App extends Component {
   constructor() {
@@ -9,6 +15,8 @@ class App extends Component {
       color: "white",
       message: "Waiting for more players...",
       ready: false,
+      playing: false,
+      numUsers: 0
     };
   }
 
@@ -16,21 +24,48 @@ class App extends Component {
   componentDidMount() {
     const socket = socketIOClient(this.state.endpoint);
 
-    socket.on("user ready", message => {
-      console.log("changing message");
-      document.getElementById("message").innerText = message;
-      this.setState({ready: true})
+    socket.on("user ready", data => {
+      document.getElementsByClassName("message")[0].innerText = `${data.message}`;
+      this.setState({ ready: true, numUsers: data.numUsers });
     });
   }
 
-  // TODO: make two separate components. 
-  // One when we are waiting for another player, 
+  play = () => {
+    this.setState({ playing: true });
+  };
+
+  // TODO: make two separate components.
+  // One when we are waiting for another player,
   // And another when we are ready to play the game!
   render() {
     return (
       <div style={{ textAlign: "center" }}>
-        <h1 id="message">Waiting for one more player...</h1>
-        <button style={{display: this.state.ready ? "block": "none"}}>Play</button> 
+        <AppBar position="static" color="secondary">
+          <Toolbar>
+            <Typography variant="h5" color="inherit">
+              Basta
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        {this.state.playing ? (
+          <GameRoom />
+        ) : (
+          <>
+            <MainMenu
+              class="message"
+              message="Waiting for 2nd player to join..."
+            />
+            <button
+              onClick={this.play}
+              style={{
+                margin: "0 auto",
+                display: this.state.ready ? "block" : "none"
+              }}
+            >
+              Play
+            </button>
+          </>
+        )}
       </div>
     );
   }

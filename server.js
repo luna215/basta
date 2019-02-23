@@ -11,19 +11,20 @@ var numUsers = 0;
 
 io.on("connection", socket => {
   numUsers++;
-  console.log('user connected');
+  console.log("user connected");
   console.log(`num of users: ${numUsers}`);
-  let message;
+  var message;
   if (numUsers > 1) {
     message = "Ready to play!";
-    io.sockets.emit("user ready", message);
+    io.sockets.emit("user ready", {
+      message: message,
+      numUsers: numUsers
+    });
   }
 
   // disconnect is fired when a client leaves the server
   socket.on("disconnect", () => {
-    console.log("user disconnected");
     --numUsers;
-    console.log(`num of user: ${numUsers}`);
   });
 });
 
