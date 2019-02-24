@@ -5,7 +5,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 
 import MainMenu from "./MainMenu";
-import GameRoom from "./GameRoom";
+import GameRoom from "./GameRoom/GameRoom";
 
 class App extends Component {
   constructor() {
