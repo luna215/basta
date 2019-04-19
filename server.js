@@ -8,22 +8,32 @@ const server = http.createServer(app);
 const io = socketIO(server);
 
 var numUsers = 0;
+var ready = false;
 
 io.on("connection", socket => {
   numUsers++;
   console.log("user connected");
   console.log(`num of users: ${numUsers}`);
   var message;
-  if (numUsers > 1) {
+  if (numUsers > 1 && !ready) {
     message = "Ready to play!";
+    ready = true;
     io.sockets.emit("user ready", {
       message: message,
       numUsers: numUsers
     });
   }
 
+  // If a user presses play
+  socket.on('pressed play', () => {
+    io.sockets.emit("user pressed play", {
+      message: 'starting game...',
+    });
+  });
+
   // disconnect is fired when a client leaves the server
   socket.on("disconnect", () => {
+    ready = false;
     --numUsers;
   });
 });

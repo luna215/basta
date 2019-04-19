@@ -4,7 +4,7 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 
-import MainMenu from "./MainMenu";
+import WaitRoom from "./WaitRoom/WaitRoom";
 import GameRoom from "./GameRoom/GameRoom";
 
 class App extends Component {
@@ -12,7 +12,6 @@ class App extends Component {
     super();
     this.state = {
       endpoint: "http://127.0.0.1:4001",
-      color: "white",
       message: "Waiting for more players...",
       ready: false,
       playing: false,
@@ -25,12 +24,19 @@ class App extends Component {
     const socket = socketIOClient(this.state.endpoint);
 
     socket.on("user ready", data => {
-      document.getElementsByClassName("message")[0].innerText = `${data.message}`;
-      this.setState({ ready: true, numUsers: data.numUsers });
+      this.setState({ ready: true, numUsers: data.numUsers, message: data.message});
+    });
+
+    socket.on('user pressed play', (data) => {
+      console.log(data.message);
+      this.setState({ playing: true });
     });
   }
 
   play = () => {
+    const socket = socketIOClient(this.state.endpoint);
+    socket.emit('pressed play', 'hello');
+
     this.setState({ playing: true });
   };
 
@@ -51,19 +57,12 @@ class App extends Component {
           <GameRoom />
         ) : (
           <>
-            <MainMenu
+            <WaitRoom
+              ready={this.state.ready}
+              play={this.play}
               class="message"
-              message="Waiting for 2nd player to join..."
+              message={this.state.message}
             />
-            <button
-              onClick={this.play}
-              style={{
-                margin: "0 auto",
-                display: this.state.ready ? "block" : "none"
-              }}
-            >
-              Play
-            </button>
           </>
         )}
       </div>
