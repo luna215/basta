@@ -1,4 +1,6 @@
 import React from "react";
+import socketIOClient from "socket.io-client";
+
 import PrimaryHeading from "../PrimaryHeading";
 
 import "./GameRoom.css";
@@ -8,6 +10,7 @@ export default class GameRoom extends React.Component {
     super(props);
 
     this.state = {
+      endpoint: "http://127.0.0.1:4001",
       nombre: "",
       apellido: "",
       ciudad: "",
@@ -15,6 +18,13 @@ export default class GameRoom extends React.Component {
       cosa: "",
       animal: ""
     };
+  }
+
+  componentDidMount() {
+    const socket = socketIOClient(this.state.endpoint);
+    socket.on('basta', () => {
+      socket.emit('add to results', this.state);
+    });
   }
 
   handleChange = name => event => {
@@ -28,8 +38,10 @@ export default class GameRoom extends React.Component {
     );
   };
 
-  sendForm = event => {
+  sendForm = (event) => {
     event.preventDefault();
+    const socket = socketIOClient(this.state.endpoint);
+    socket.emit('basta', '');
     console.log(this.state);
   };
 

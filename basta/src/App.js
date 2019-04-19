@@ -44,9 +44,6 @@ class App extends Component {
     this.setState({ playing: true });
   };
 
-  // TODO: make two separate components.
-  // One when we are waiting for another player,
-  // And another when we are ready to play the game!
   render() {
     return (
       <div style={{ textAlign: "center" }}>

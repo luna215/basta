@@ -9,6 +9,7 @@ const io = socketIO(server);
 
 var numUsers = 0;
 var ready = false;
+var results = [];
 
 io.on("connection", socket => {
   numUsers++;
@@ -29,6 +30,19 @@ io.on("connection", socket => {
     io.sockets.emit("user pressed play", {
       message: 'starting game...',
     });
+  });
+
+  // If a user presses basta
+  socket.on('basta', (data) => {
+    console.log('user pressed basta');
+    io.sockets.emit('basta', {
+      message: 'STOP'
+    });
+  });
+
+  socket.on('add to results', (data) => {
+    results.push(data);
+    console.log(results);
   });
 
   // disconnect is fired when a client leaves the server
