@@ -35,6 +35,15 @@ io.on("connection", socket => {
   socket.on("disconnect", () => {
     ready = false;
     --numUsers;
+    console.log('user left');
+    console.log(`num of users: ${numUsers}`);
+    if(numUsers < 2) {
+      console.log('we need to wait for players');
+      io.sockets.emit('wait for players', {
+        message: 'Waiting for more players...',
+        numUsers: numUsers,
+      })
+    }
   });
 });
 

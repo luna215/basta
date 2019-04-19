@@ -31,6 +31,10 @@ class App extends Component {
       console.log(data.message);
       this.setState({ playing: true });
     });
+
+    socket.on('wait for players', (data) => {
+      this.setState({playing: false, ready: false, message: data.message});
+    });
   }
 
   play = () => {
