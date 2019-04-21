@@ -9,4 +9,5 @@ to switch to React for Frontend and Nodejs for backend.
 * React - Frontend
 * Nodejs/express - backend
 * socket.io - to communicate with backend and frontend
+* nodemon - restarts our server every time we make a change
 
