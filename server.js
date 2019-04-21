@@ -7,24 +7,38 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 
-var numUsers = 0;
-var ready = false;
 var results = [];
+var numUsers = 0;
+var users = [];
+var ready = false;
 
 io.on("connection", socket => {
-  numUsers++;
-  console.log("user connected");
-  console.log(`num of users: ${numUsers}`);
   var message;
-  if (numUsers > 1 && !ready) {
-    message = "Ready to play!";
-    ready = true;
-    io.sockets.emit("user ready", {
-      message: message,
-      numUsers: numUsers
-    });
-  }
+  var addedUser = false;
 
+  socket.on('add user', (username) => {
+    if(addedUser) { return; }
+
+    if(users.includes(username)) {
+      console.log('User already exist');
+    } else {
+      socket.username = username;
+      numUsers++;
+      console.log("user connected");
+      console.log(`num of users: ${numUsers}`);
+      users.push(username);
+      addedUser = true;
+      if (numUsers > 1 && !ready) {
+        message = "Ready to play!";
+        ready = true;
+        io.sockets.emit("user ready", {
+          message: message,
+          numUsers: numUsers
+        });
+      }
+    }
+  });
+  
   // If a user presses play
   socket.on('pressed play', () => {
     io.sockets.emit("user pressed play", {
@@ -48,9 +62,14 @@ io.on("connection", socket => {
   // disconnect is fired when a client leaves the server
   socket.on("disconnect", () => {
     ready = false;
-    --numUsers;
-    console.log('user left');
-    console.log(`num of users: ${numUsers}`);
+    if(addedUser) {
+      --numUsers;
+      users = users.filter((username) => username !== socket.username);
+      addedUser = false;
+      console.log('user left');
+      console.log(`num of users: ${numUsers}`);
+    }
+
     if(numUsers < 2) {
       console.log('we need to wait for players');
       io.sockets.emit('wait for players', {

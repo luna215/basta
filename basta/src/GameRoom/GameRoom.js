@@ -23,7 +23,15 @@ export default class GameRoom extends React.Component {
   componentDidMount() {
     const socket = socketIOClient(this.state.endpoint);
     socket.on('basta', () => {
-      socket.emit('add to results', this.state);
+      socket.emit('add to results', {
+        playername: this.props.playername,
+        nombre: this.state.nombre,
+        apellido: this.state.apellido,
+        ciudad: this.state.ciudad,
+        fruta: this.state.fruta,
+        cosa: this.state.cosa,
+        animal: this.state.animal
+      });
     });
   }
 
@@ -48,7 +56,7 @@ export default class GameRoom extends React.Component {
   render() {
     return (
       <div>
-        <PrimaryHeading class="playerName" message="Player Name" />
+        <PrimaryHeading class="playerName" message={this.props.playername} />
         <form className="container" noValidate autoComplete="off">
           <input
             placeholder="Nombre"
