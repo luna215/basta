@@ -56,7 +56,7 @@ io.on("connection", socket => {
 
   socket.on('add to results', (data) => {
     results.push(data);
-    console.log(results);
+    io.sockets.emit('results', results);
   });
 
   // disconnect is fired when a client leaves the server

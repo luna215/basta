@@ -9,6 +9,7 @@ import Typography from "@material-ui/core/Typography";
 import WaitRoom from "./WaitRoom/WaitRoom";
 import GameRoom from "./GameRoom/GameRoom";
 import Login from "./Login/Login";
+import ResultsRoom from './ResultsRoom/ResultsRoom'
 
 class App extends Component {
   constructor() {
@@ -19,7 +20,8 @@ class App extends Component {
       message: "Waiting for more players...",
       ready: false,
       playing: false,
-      numUsers: 0
+      numUsers: 0,
+      room: 'login',
     };
   }
 
@@ -38,30 +40,57 @@ class App extends Component {
 
     socket.on('user pressed play', (data) => {
       console.log(data.message);
-      this.setState({ playing: true });
+      this.setState({ playing: true, room: 'playing'});
     });
 
     socket.on('wait for players', (data) => {
-      this.setState({playing: false, ready: false, message: data.message});
+      if(data.numUsers < 2) {
+        this.setState({playing: false, ready: false, message: data.message, room: 'waiting'});
+      } else {
+        this.setState({playing: false, ready: false, message: data.message, room: this.state.room});
+      }
     });
+
+    socket.on('results', (data) => {
+      this.setState({room: 'results'});
+    })
   }
 
   play = () => {
     const socket = socketIOClient(this.state.endpoint);
     socket.emit('pressed play', '');
 
-    this.setState({ playing: true });
+    this.setState({ playing: true, room: 'playing'});
   };
 
   setName = (name) => {
     console.log(`setting name: ${name}`);
-    this.setState({name});
+    this.setState({name, room: 'waiting'});
   }
 
+  displayRoom = (room) => {
+    switch(room) {
+      case 'login':
+        return <Login setName={this.setName} />;
+      case 'waiting':
+        return <WaitRoom
+                  class="message"
+                  message={this.state.message}
+                  play={this.play}
+                  ready={this.state.ready} />;
+      case 'playing':
+        return <GameRoom playername={this.state.name} />;
+      case 'results':
+        return <ResultsRoom />
+      default:
+        return null;
+    }
+  }
   render() {
+    console.log(this.state.room);
     return (
       <div style={{ textAlign: "center" }}>
-        {this.state.name === '' ? (<Login setName={this.setName} />) : (<></>)}
+        {/* {this.state.name === '' ? (<Login setName={this.setName} />) : (<></>)} */}
         <AppBar position="static" color="secondary">
           <Toolbar>
             <Typography variant="h5" color="inherit">
@@ -69,7 +98,8 @@ class App extends Component {
             </Typography>
           </Toolbar>
         </AppBar>
-        {this.state.playing ? (
+        {this.displayRoom(this.state.room)}
+        {/* {this.state.playing ? (
           <GameRoom playername={this.state.name} />
         ) : (
           <>
@@ -80,7 +110,7 @@ class App extends Component {
               message={this.state.message}
             />
           </>
-        )}
+        )} */}
       </div>
     );
   }
