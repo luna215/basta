@@ -39,9 +39,6 @@ export default class GameRoom extends React.Component {
     this.setState(
       {
         [name]: event.target.value
-      },
-      () => {
-        console.log(this.state);
       }
     );
   };
@@ -50,7 +47,6 @@ export default class GameRoom extends React.Component {
     event.preventDefault();
     const socket = socketIOClient(this.state.endpoint);
     socket.emit('basta', '');
-    console.log(this.state);
   };
 
   render() {

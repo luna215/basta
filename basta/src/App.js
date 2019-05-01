@@ -22,6 +22,7 @@ class App extends Component {
       playing: false,
       numUsers: 0,
       room: 'login',
+      results: {}
     };
   }
 
@@ -44,7 +45,7 @@ class App extends Component {
     });
 
     socket.on('wait for players', (data) => {
-      if(data.numUsers < 2) {
+      if(data.numUsers < 2 && data.numUsers > 0) {
         this.setState({playing: false, ready: false, message: data.message, room: 'waiting'});
       } else {
         this.setState({playing: false, ready: false, message: data.message, room: this.state.room});
@@ -52,7 +53,7 @@ class App extends Component {
     });
 
     socket.on('results', (data) => {
-      this.setState({room: 'results'});
+      this.setState({room: 'results', results: data});
     })
   }
 
@@ -81,7 +82,7 @@ class App extends Component {
       case 'playing':
         return <GameRoom playername={this.state.name} />;
       case 'results':
-        return <ResultsRoom />
+        return <ResultsRoom results={this.state.results}/>
       default:
         return null;
     }
