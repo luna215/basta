@@ -22,6 +22,7 @@ class App extends Component {
       playing: false,
       numUsers: 0,
       room: 'login',
+      users: [],
       results: {}
     };
   }
@@ -30,30 +31,37 @@ class App extends Component {
   componentDidMount() {
     const socket = socketIOClient(this.state.endpoint);
 
+    socket.on('connected', (data) => {
+      console.log('someone connected to the site...');
+      this.setState({ users: data.users }, () => {
+        console.log(this.state.users);
+      });
+    });
+
     socket.on('login', (data) => {
       console.log(`${data.user} logged in.`);
       this.setState({ name: data.user });
     });
 
     socket.on("user ready", (data) => {
-      this.setState({ ready: true, numUsers: data.numUsers, message: data.message});
+      this.setState({ ready: true, numUsers: data.numUsers, message: data.message });
     });
 
     socket.on('user pressed play', (data) => {
       console.log(data.message);
-      this.setState({ playing: true, room: 'playing'});
+      this.setState({ playing: true, room: 'playing' });
     });
 
     socket.on('wait for players', (data) => {
-      if(data.numUsers < 2 && data.numUsers > 0) {
-        this.setState({playing: false, ready: false, message: data.message, room: 'waiting'});
+      if (data.numUsers < 2 && data.numUsers > 0) {
+        this.setState({ playing: false, ready: false, message: data.message, room: 'waiting' });
       } else {
-        this.setState({playing: false, ready: false, message: data.message, room: this.state.room});
+        this.setState({ playing: false, ready: false, message: data.message, room: this.state.room });
       }
     });
 
     socket.on('results', (data) => {
-      this.setState({room: 'results', results: data});
+      this.setState({ room: 'results', results: data });
     })
   }
 
@@ -61,28 +69,30 @@ class App extends Component {
     const socket = socketIOClient(this.state.endpoint);
     socket.emit('pressed play', '');
 
-    this.setState({ playing: true, room: 'playing'});
+    this.setState({ playing: true, room: 'playing' });
   };
 
   setName = (name) => {
     console.log(`setting name: ${name}`);
-    this.setState({name, room: 'waiting'});
+    this.setState({ name, room: 'waiting' });
   }
 
   displayRoom = (room) => {
-    switch(room) {
+    switch (room) {
       case 'login':
-        return <Login setName={this.setName} />;
+        return <Login
+          users={this.state.users}
+          setName={this.setName} />;
       case 'waiting':
         return <WaitRoom
-                  class="message"
-                  message={this.state.message}
-                  play={this.play}
-                  ready={this.state.ready} />;
+          class="message"
+          message={this.state.message}
+          play={this.play}
+          ready={this.state.ready} />;
       case 'playing':
         return <GameRoom playername={this.state.name} />;
       case 'results':
-        return <ResultsRoom results={this.state.results}/>
+        return <ResultsRoom results={this.state.results} />
       default:
         return null;
     }

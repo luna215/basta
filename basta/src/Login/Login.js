@@ -8,7 +8,7 @@ export default class Login extends React.Component {
         super(props);
         this.state = {
             endpoint: "http://127.0.0.1:4001",
-            name: ''
+            name: '',
         };
     }
 
@@ -19,10 +19,14 @@ export default class Login extends React.Component {
     handleEnter = event => {
         if(event.keyCode === 13) {
             if(this.state.name !== '') {
-                console.log(`${this.state.name}`);
                 const socket = socketIOClient(this.state.endpoint);
-                socket.emit('add user', this.state.name);
-                this.props.setName(this.state.name);
+                if(this.props.users.includes(this.state.name)) {
+                    // TODO: 
+                    // Display message using toastr that username is already taken
+                } else {
+                    socket.emit('add user', this.state.name);
+                    this.props.setName(this.state.name);
+                }
             }
         }
     }

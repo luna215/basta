@@ -15,7 +15,11 @@ var ready = false;
 io.on("connection", socket => {
   var message;
   var addedUser = false;
-
+  
+  socket.emit('connected', {
+    users: users,
+  });
+  
   socket.on('add user', (username) => {
     if(addedUser) { return; }
 
